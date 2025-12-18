@@ -521,7 +521,7 @@ export default function Recharge() {
 
       // After payment, call your backend verification API
       const verifyResponse = await axios.post(
-        `https://www.appv2.olyox.com/api/v1/rider/recharge-verify/${userData?.BH}`,
+        `http://localhost:3200/api/v1/rider/recharge-verify/${userData?.BH}`,
         {
           razorpay_order_id: paymentResponse?.razorpay_order_id,
           razorpay_payment_id: paymentResponse?.razorpay_payment_id,

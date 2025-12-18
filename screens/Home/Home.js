@@ -50,26 +50,47 @@ export default function HotelDashboard() {
   };
 
   const handleToggle = async () => {
-    const newStatus = !workStatus;
-    setWorkStatus(newStatus);
-    try {
-      const response = await toggleHotel({ status: newStatus });
-      if (response.success) {
+  const newStatus = !workStatus;
+  setWorkStatus(newStatus);
+
+  try {
+    const response = await toggleHotel({ status: newStatus });
+
+    if (response.success) {
+      Alert.alert(
+        'Status Updated',
+        newStatus
+          ? 'Hotel is now Online and accepting bookings'
+          : 'Hotel is now Offline and not accepting bookings'
+      );
+    } else {
+      setWorkStatus(!newStatus); // revert toggle
+      if (
+        response.message ===
+        "You need to upload the required documents before activating your hotel."
+      ) {
+        // Show alert and redirect
         Alert.alert(
-          'Status Updated',
-          newStatus
-            ? 'Hotel is now Online and accepting bookings'
-            : 'Hotel is now Offline and not accepting bookings'
+          'Documents Required',
+          response.message,
+          [
+            {
+              text: 'Upload Now',
+              onPress: () => navigation.navigate('upload_Documents'), // redirect to UploadDocuments screen
+            },
+            { text: 'Cancel', style: 'cancel' },
+          ],
+          { cancelable: true }
         );
       } else {
-        setWorkStatus(!newStatus);
         Alert.alert('Update Failed', response.message || 'Failed to update status');
       }
-    } catch (err) {
-      setWorkStatus(!newStatus);
-      Alert.alert('Error', 'An error occurred while updating status');
     }
-  };
+  } catch (err) {
+    setWorkStatus(!newStatus);
+    Alert.alert('Error', 'An error occurred while updating status');
+  }
+};
 
   const handleRefresh = useCallback(() => {
     setRefresh(true);

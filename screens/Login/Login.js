@@ -72,6 +72,7 @@ export default function Login({ navigation }) {
                 }, 1500);
             }
             setError(res?.message || 'Something went wrong.');
+            console.log("res",res)
         } finally {
             setLoading(false);
         }
@@ -104,75 +105,125 @@ export default function Login({ navigation }) {
     };
 
     return (
-        <SafeAreaView style={styles.container}>
-            <KeyboardAvoidingView style={styles.keyboardView} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-                <ScrollView contentContainerStyle={styles.scrollView} keyboardShouldPersistTaps="handled">
-                    <View style={styles.logoContainer}>
-                        <Image source={{ uri: "https://i.ibb.co/pY8kDVH/image.png" }} style={styles.logo} />
-                        <Text style={styles.title}>Login</Text>
-                    </View>
+  <SafeAreaView style={{ flex: 1, backgroundColor: '#f5f5f5' }}>
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 0}
+    >
+      <ScrollView
+        contentContainerStyle={{
+          flexGrow: 1,
+          paddingHorizontal: 20,
+          paddingBottom: 40,
+        }}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="none"
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={{ flex: 1, justifyContent: 'center' }}>
+          
+          {/* LOGO */}
+          <View style={styles.logoContainer}>
+            <Image
+              source={{ uri: 'https://i.ibb.co/pY8kDVH/image.png' }}
+              style={styles.logo}
+            />
+            <Text style={styles.title}>Login</Text>
+          </View>
 
-                    <View style={styles.otpTypeContainer}>
-                        <TouchableOpacity
-                            style={[styles.otpTypeButton, typeOfMessage === 'text' && styles.otpTypeButtonActive]}
-                            onPress={() => handleOtpTypeChange('text')}
-                        >
-                            <Text style={styles.otpTypeText}>OTP via Text</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            style={[styles.otpTypeButton, typeOfMessage === 'whatsapp' && styles.otpTypeButtonActive]}
-                            onPress={() => handleOtpTypeChange('whatsapp')}
-                        >
-                            <Text style={styles.otpTypeText}>OTP via WhatsApp</Text>
-                        </TouchableOpacity>
-                    </View>
+          {/* OTP TYPE */}
+          <View style={styles.otpTypeContainer}>
+            <TouchableOpacity
+              style={[
+                styles.otpTypeButton,
+                typeOfMessage === 'text' && styles.otpTypeButtonActive,
+              ]}
+              onPress={() => handleOtpTypeChange('text')}
+            >
+              <Text style={styles.otpTypeText}>OTP via Text</Text>
+            </TouchableOpacity>
 
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Enter BH ID (e.g., BH123456)"
-                        keyboardType="number-pad"
-                        value={bh}
-                        
-                        onChangeText={setBh}
-                    />
+            <TouchableOpacity
+              style={[
+                styles.otpTypeButton,
+                typeOfMessage === 'whatsapp' && styles.otpTypeButtonActive,
+              ]}
+              onPress={() => handleOtpTypeChange('whatsapp')}
+            >
+              <Text style={styles.otpTypeText}>OTP via WhatsApp</Text>
+            </TouchableOpacity>
+          </View>
 
-                    {!otpSend && (
-                        <TouchableOpacity style={styles.button} onPress={handleLoginStart} disabled={loading}>
-                            {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Send OTP</Text>}
-                        </TouchableOpacity>
-                    )}
+          {/* BH INPUT */}
+          <TextInput
+            style={styles.input}
+            placeholder="Enter BH ID (e.g., BH123456)"
+            value={bh}
+            onChangeText={setBh}
+            autoCapitalize="characters"
+            returnKeyType="done"
+          />
 
-                    {otpSend && (
-                        <>
-                            <TextInput
-                                style={styles.input}
-                                placeholder="Enter OTP"
-                                keyboardType="number-pad"
-                                value={otpInput}
-                                onChangeText={setOtpInput}
-                            />
+          {!otpSend && (
+            <TouchableOpacity
+              style={styles.button}
+              onPress={handleLoginStart}
+              disabled={loading}
+            >
+              {loading ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <Text style={styles.buttonText}>Send OTP</Text>
+              )}
+            </TouchableOpacity>
+          )}
 
-                            <TouchableOpacity style={styles.button} onPress={verifyOtp} disabled={isDisabled || verifying}>
-                                {verifying ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Verify OTP</Text>}
-                            </TouchableOpacity>
+          {otpSend && (
+            <>
+              <TextInput
+                style={styles.input}
+                placeholder="Enter OTP"
+                keyboardType="number-pad"
+                value={otpInput}
+                onChangeText={setOtpInput}
+                returnKeyType="done"
+              />
 
-                            <TouchableOpacity
-                                style={[styles.button, styles.resendButton]}
-                                onPress={handleLoginStart}
-                                disabled={otpResendTimer > 0 || loading}
-                            >
-                                <Text style={styles.buttonText}>
-                                    {otpResendTimer > 0 ? `Resend OTP in ${otpResendTimer}s` : 'Resend OTP'}
-                                </Text>
-                            </TouchableOpacity>
-                        </>
-                    )}
+              <TouchableOpacity
+                style={styles.button}
+                onPress={verifyOtp}
+                disabled={verifying}
+              >
+                {verifying ? (
+                  <ActivityIndicator color="#fff" />
+                ) : (
+                  <Text style={styles.buttonText}>Verify OTP</Text>
+                )}
+              </TouchableOpacity>
 
-                    {error ? <Text style={styles.errorText}>{error}</Text> : null}
-                </ScrollView>
-            </KeyboardAvoidingView>
-        </SafeAreaView>
-    );
+              <TouchableOpacity
+                style={[styles.button, styles.resendButton]}
+                onPress={handleLoginStart}
+                disabled={otpResendTimer > 0}
+              >
+                <Text style={styles.buttonText}>
+                  {otpResendTimer > 0
+                    ? `Resend OTP in ${otpResendTimer}s`
+                    : 'Resend OTP'}
+                </Text>
+              </TouchableOpacity>
+            </>
+          )}
+
+          {error ? <Text style={styles.errorText}>{error}</Text> : null}
+
+        </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
+  </SafeAreaView>
+);
+
 }
 
 const styles = StyleSheet.create({
